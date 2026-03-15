@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Google Font ─── */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── Design Tokens ─── */
+:root {
+  --brand-red:     #E10600;
+  --brand-red-glow: rgba(225, 6, 0, 0.35);
+  --brand-yellow:  #FFD700;
+  --brand-dark:    #0A0A0A;
+  --carbon-bg:     #111111;
+  --panel-bg:      rgba(255, 255, 255, 0.04);
+  --panel-border:  rgba(255, 255, 255, 0.08);
+  --text-primary:  #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.55);
+  --text-muted:    rgba(255, 255, 255, 0.3);
+  --font-heading:  'Orbitron', monospace, sans-serif;
+  --font-body:     'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Reset ─── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--brand-dark);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-red);
+  border-radius: 3px;
+}
+
+::selection {
+  background: var(--brand-red);
+  color: #fff;
+}
+
+/* ─── Section Layout ─── */
+.section {
+  position: relative;
+  padding: 100px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff 60%, var(--brand-red));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 700px;
+  margin-bottom: 48px;
+}
+
+/* ─── Racing Stripe Accent ─── */
+.racing-stripe {
+  width: 60px;
+  height: 4px;
+  background: var(--brand-red);
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+
+/* ─── Panel / Card ─── */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 32px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--brand-red-glow);
+}
+
+/* ─── Glow Button ─── */
+.btn-racing {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--brand-red);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px var(--brand-red-glow);
+}
+
+.btn-racing:hover {
+  background: #ff1a0e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(225, 6, 0, 0.5);
+}
+
+/* ─── Badge ─── */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  background: rgba(225, 6, 0, 0.15);
+  color: var(--brand-red);
+  border: 1px solid rgba(225, 6, 0, 0.3);
+}
+
+.badge-gold {
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--brand-yellow);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.badge-easy {
+  background: rgba(0, 200, 83, 0.12);
+  color: #00c853;
+  border-color: rgba(0, 200, 83, 0.3);
+}
+
+.badge-medium {
+  background: rgba(255, 171, 0, 0.12);
+  color: #ffab00;
+  border-color: rgba(255, 171, 0, 0.3);
+}
+
+.badge-hard {
+  background: rgba(225, 6, 0, 0.12);
+  color: var(--brand-red);
+  border-color: rgba(225, 6, 0, 0.3);
+}
+
+/* ─── Carbon fiber BG pattern ─── */
+.carbon-bg {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+/* ─── Speed lines decoration ─── */
+.speed-lines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand-red), transparent);
+  opacity: 0.4;
+}
+
+/* ─── Podium colors ─── */
+.podium-1 { color: #FFD700; }
+.podium-2 { color: #C0C0C0; }
+.podium-3 { color: #CD7F32; }
+
+/* ─── Page entrance animation ─── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+
+/* ─── Grid helpers ─── */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* ─── Footer ─── */
+.footer {
+  position: relative;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, var(--brand-red) 50%, transparent 95%);
+}
