@@ -1,18 +1,43 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-const links = [
-  { href: '/', label: 'Home' },
-  { href: '/how-it-works', label: 'How It Works' },
-  { href: '/challenges', label: 'Challenges' },
-  { href: '/leaderboard', label: 'Leaderboard' },
-  { href: '/teams', label: 'Teams' },
-];
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
+
+  const checkAuth = () => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      setUser(JSON.parse(stored));
+    } else {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+    window.addEventListener('auth-change', checkAuth);
+    return () => window.removeEventListener('auth-change', checkAuth);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    checkAuth();
+    router.push('/');
+  };
+
+  const links = [
+    { href: '/', label: 'Home', show: true },
+    { href: '/how-it-works', label: 'How It Works', show: true },
+    { href: '/challenges', label: 'Challenges', show: true },
+    { href: '/leaderboard', label: 'Leaderboard', show: true },
+    { href: '/teams', label: 'Teams', show: true },
+    { href: '/admin', label: 'Admin Dashboard', show: user?.role === 'admin' }
+  ];
 
   return (
     <nav style={{
@@ -32,8 +57,8 @@ export default function Navbar() {
         <span style={{ color: 'var(--brand-red)' }}>Code</span>Prix
       </Link>
 
-      <ul style={{ display: 'flex', gap: 32, listStyle: 'none', margin: 0, padding: 0 }}>
-        {links.map(({ href, label }) => {
+      <ul style={{ display: 'flex', gap: 32, listStyle: 'none', margin: 0, padding: 0, alignItems: 'center' }}>
+        {links.filter(l => l.show).map(({ href, label }) => {
           const isActive = pathname === href;
           return (
             <li key={href}>
@@ -54,6 +79,33 @@ export default function Navbar() {
             </li>
           );
         })}
+        
+        {/* Auth Toggle Logic */}
+        <li>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--brand-red)', fontWeight: 600 }}>
+                {user.role === 'admin' ? '[ADMIN]' : ''} {user.name}
+              </span>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  background: 'none', border: '1px solid var(--panel-border)', color: 'var(--text-secondary)', padding: '6px 16px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--panel-border)'; }}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link href="/auth" style={{
+              background: 'var(--brand-red)', color: '#fff', padding: '6px 16px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600
+            }}>
+              Login
+            </Link>
+          )}
+        </li>
       </ul>
     </nav>
   );

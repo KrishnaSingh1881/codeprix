@@ -22,7 +22,7 @@ export default function ChallengesPage() {
   const [openCat, setOpenCat] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/questions`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/questions`)
       .then((r) => r.json())
       .then((d) => setQuestions(d.data || []))
       .catch(() => {});
