@@ -1,19 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { questions } = require('../data');
+const { getQuestions, getQuestionsByCategory, createQuestion, updateQuestion, deleteQuestion } = require('../controllers/questionController');
 
-// GET /api/questions — all questions
-router.get('/', (req, res) => {
-  res.json({ success: true, data: questions });
-});
+router.route('/')
+  .get(getQuestions)
+  .post(createQuestion);
 
-// GET /api/questions/:category — filtered by category
-router.get('/:category', (req, res) => {
-  const cat = req.params.category.toLowerCase().replace(/-/g, ' ');
-  const filtered = questions.filter(
-    (q) => q.category.toLowerCase() === cat
-  );
-  res.json({ success: true, data: filtered });
-});
+router.route('/cat/:category')
+  .get(getQuestionsByCategory);
+
+router.route('/:id')
+  .put(updateQuestion)
+  .delete(deleteQuestion);
 
 module.exports = router;
