@@ -46,10 +46,12 @@ export default function RacePage() {
   const [overallTimeMs, setOverallTimeMs] = useState(0);
   const [rankedQuestionTimeMs, setRankedQuestionTimeMs] = useState(0);
   const [penaltyMs, setPenaltyMs] = useState(0);
+  const [penaltyCount, setPenaltyCount] = useState(0);
+  const [isDnf, setIsDnf] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [showSectorOverlay, setShowSectorOverlay] = useState(false);
   const [currentSectorNum, setCurrentSectorNum] = useState(1);
-  const [penaltyNotification, setPenaltyNotification] = useState<string | null>(null);
+  const [penaltyNotification, setPenaltyNotification] = useState<{ message: string; val: number | 'DNF' } | null>(null);
   const [penaltyShaking, setPenaltyShaking] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [sequenceStep, setSequenceStep] = useState(-1);
@@ -74,14 +76,22 @@ export default function RacePage() {
   // Penalty system — active only while race is running
   usePenalty({
     attemptId: attempt?.id ?? null,
-    isActive: raceArmed && !finished,
-    onPenalty: (seconds) => {
+    currentPenaltyCount: penaltyCount,
+    isActive: raceArmed && !finished && !isDnf,
+    onPenalty: (seconds, dnf) => {
+      if (dnf) {
+        setIsDnf(true);
+        setPenaltyCount(prev => prev + 1);
+        finishRace(true);
+        return;
+      }
       setPenaltyMs((prev) => prev + seconds * 1000);
+      setPenaltyCount((prev) => prev + 1);
       setPenaltyShaking(true);
       setTimeout(() => setPenaltyShaking(false), 600);
     },
-    onNotification: (message) => {
-      setPenaltyNotification(message);
+    onNotification: (message, val) => {
+      setPenaltyNotification({ message, val });
       setTimeout(() => setPenaltyNotification(null), 2500);
     },
   });
@@ -140,6 +150,9 @@ export default function RacePage() {
           setRaceArmed(true);
           setStartedAt(storedAttempt.started_at ? new Date(storedAttempt.started_at).getTime() : Date.now());
           setScore(storedAttempt.score || 0);
+          setPenaltyMs((storedAttempt.penalty_seconds || 0) * 1000);
+          setPenaltyCount(storedAttempt.penalty_count || 0);
+          setIsDnf(storedAttempt.is_dnf || false);
           setOverallTimeMs((storedAttempt.total_time_seconds || 0) * 1000);
         }
       } else {
@@ -302,16 +315,23 @@ export default function RacePage() {
     }, 800);
   };
 
-  const finishRace = async () => {
+  const finishRace = async (dnfOverride?: boolean) => {
+    const finalDnf = dnfOverride ?? isDnf;
     setFinished(true);
     setRaceArmed(false);
-    play('race_complete');
+    if (finalDnf) {
+      play('dnf');
+    } else {
+      play('race_complete');
+    }
+    
     if (attempt) {
       const totalTime = Math.round((getScaledElapsedMs(startedAt || 0) + penaltyMs) / 1000);
       await supabase.from('attempts').update({
         status: 'completed',
         completed_at: new Date().toISOString(),
         total_time_seconds: totalTime,
+        is_dnf: finalDnf,
       }).eq('id', attempt.id);
     }
   };
@@ -348,6 +368,7 @@ export default function RacePage() {
             onFinishRace={() => router.push('/results')}
             onOpenLeaderboard={() => setShowLeaderboard(true)}
             penaltyShaking={penaltyShaking}
+            isDnf={isDnf}
           />
           <CountdownOverlay sequenceStep={sequenceStep} sequenceRunning={sequenceRunning} />
           <SectorOverlay sector={currentSectorNum} visible={showSectorOverlay} />
@@ -361,8 +382,8 @@ export default function RacePage() {
                     <div className="flex-1">
                       <p className="font-racing text-[10px] uppercase tracking-[0.36em] text-[#E10600]/80">Race Control</p>
                       <div className="flex items-end justify-between text-white font-racing">
-                        <p className="text-sm">TRACK DEVIATION</p>
-                        <span className="text-xl text-[#E10600]">+30s</span>
+                        <p className="text-sm">{penaltyNotification.val === 'DNF' ? 'DISQUALIFIED' : 'TRACK DEVIATION'}</p>
+                        <span className="text-xl text-[#E10600]">{penaltyNotification.val === 'DNF' ? 'DNF' : `+${penaltyNotification.val}s`}</span>
                       </div>
                     </div>
                   </div>

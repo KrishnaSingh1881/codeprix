@@ -14,6 +14,7 @@ interface Attempt {
   penalty_seconds: number;
   penalty_count: number;
   status: string;
+  is_dnf?: boolean;
 }
 
 interface EventConfig {
@@ -54,11 +55,10 @@ export default function ResultsPage() {
     // 2. Fetch specific attempt for THIS race
     const { data: attempts } = await supabase
       .from('attempts')
-      .select('id, score, total_time_seconds, penalty_seconds, penalty_count, status')
+      .select('id, score, total_time_seconds, penalty_seconds, penalty_count, status, is_dnf')
       .eq('participant_id', participantId)
       .eq('event_id', race.id)
-      .eq('status', 'completed')
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false }) // Take most recent attempt to show DNF if any
       .limit(1);
 
     if (attempts && attempts.length > 0) {
@@ -164,8 +164,8 @@ export default function ResultsPage() {
                     <p className="mt-2 text-center font-racing text-3xl tracking-[0.06em] text-white">{participant.team_name}</p>
                     <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
                       <StatCard label="Laps" value={String(correctAnswers)} accent />
-                      <StatCard label="Finish Time" value={formatDuration(totalTime * 1000)} />
-                      <StatCard label="Penalties" value={`+${attempt.penalty_seconds}s`} color="#E10600" />
+                      <StatCard label="Finish Time" value={attempt.is_dnf ? 'DNF' : formatDuration(totalTime * 1000)} />
+                      <StatCard label="Penalties" value={attempt.is_dnf ? 'DISQUALIFIED' : `+${attempt.penalty_seconds}s`} color="#E10600" />
                     </div>
                   </div>
                 )}
@@ -206,7 +206,9 @@ function LeaderboardTable({ entries, myTeam }: { entries: LeaderboardPublicEntry
             <div key={e.rank} className={`grid items-center border-b border-white/[0.04] px-5 py-3.5 ${isMe ? 'bg-[#E10600]/10' : 'hover:bg-white/[0.02]'}`} style={{ gridTemplateColumns: '52px 1fr 120px' }}>
               <span className="font-racing text-xs text-white/40">P{e.rank}</span>
               <span className={`font-racing text-[13px] tracking-tight ${isMe ? 'text-[#E10600]' : 'text-white'}`}>{e.teamName}{isMe ? ' ★' : ''}</span>
-              <span className="text-right font-racing text-xs text-white/30">{formatDuration(e.totalTime * 1000)}</span>
+              <span className="text-right font-racing text-xs text-white/30">
+                {e.isDnf ? <span className="text-red-500 font-bold">DNF</span> : formatDuration(e.totalTime * 1000)}
+              </span>
             </div>
           );
         })}

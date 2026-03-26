@@ -8,12 +8,13 @@ const DEBOUNCE_MS = 3000;
 
 interface UsePenaltyOptions {
   attemptId: string | null;
-  onPenalty: (seconds: number) => void;
-  onNotification: (message: string) => void;
+  currentPenaltyCount: number;
+  onPenalty: (seconds: number, isDnf: boolean) => void;
+  onNotification: (message: string, seconds: number | 'DNF') => void;
   isActive: boolean;
 }
 
-export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: UsePenaltyOptions) {
+export function usePenalty({ attemptId, currentPenaltyCount, onPenalty, onNotification, isActive }: UsePenaltyOptions) {
   const lastPenaltyAt = useRef<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fallbackCtxRef = useRef<AudioContext | null>(null);
@@ -62,7 +63,7 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
   }, []);
 
   const triggerPenalty = useCallback(async (triggerType: 'tab_switch' | 'window_blur') => {
-    console.log(`[PenaltySystem] Trigger attempt: ${triggerType} | active=${isActive} | attemptId=${attemptId}`);
+    console.log(`[PenaltySystem] Trigger attempt: ${triggerType} | active=${isActive} | attemptId=${attemptId} | count=${currentPenaltyCount}`);
     
     if (!isActive || !attemptId) return;
 
@@ -75,10 +76,23 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
     }
     
     lastPenaltyAt.current = now;
-    console.log(`[PenaltySystem] APPLYING PENALTY: ${triggerType}`);
+    
+    const nextPenaltyIdx = currentPenaltyCount; // 0-indexed count
+    let penaltySeconds = 0;
+    let isDnf = false;
 
-    // 1. Notify parent to add time
-    onPenalty(PENALTY_SECONDS);
+    if (nextPenaltyIdx === 0) {
+      penaltySeconds = 33;
+    } else if (nextPenaltyIdx === 1) {
+      penaltySeconds = 44;
+    } else {
+      isDnf = true;
+    }
+
+    console.log(`[PenaltySystem] APPLYING PENALTY: ${triggerType} | amount=${isDnf ? 'DNF' : penaltySeconds + 's'}`);
+
+    // 1. Notify parent to add time/DNF
+    onPenalty(isDnf ? 0 : penaltySeconds, isDnf);
 
     // 2. Play audio
     if (audioRef.current) {
@@ -92,39 +106,45 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
     }
 
     // 3. Notification
-    onNotification(`+${PENALTY_SECONDS}s PENALTY — ${triggerType === 'tab_switch' ? 'Tab switch detected' : 'Window focus lost'}`);
+    const penaltyLabel = isDnf ? 'DNF' : `+${penaltySeconds}s`;
+    onNotification(
+      `${penaltyLabel} PENALTY — ${triggerType === 'tab_switch' ? 'Tab switch detected' : 'Window focus lost'}`, 
+      isDnf ? 'DNF' : penaltySeconds
+    );
 
     // 4. Update DB (async, non-blocking for UI)
     try {
       const { error: pError } = await supabase.from('penalties').insert({
         attempt_id: attemptId,
         trigger_type: triggerType,
-        penalty_seconds: PENALTY_SECONDS,
+        penalty_seconds: isDnf ? 0 : penaltySeconds,
+        is_dnf: isDnf,
         triggered_at: new Date().toISOString(),
       });
       if (pError) throw pError;
 
-      const { error: rpcError } = await supabase.rpc('increment_penalty', {
+      const { error: rpcError } = await supabase.rpc('increment_penalty_v2', {
         p_attempt_id: attemptId,
-        p_penalty_seconds: PENALTY_SECONDS,
+        p_penalty_seconds: isDnf ? 0 : penaltySeconds,
+        p_is_dnf: isDnf
       });
-      if (rpcError) throw rpcError;
-    } catch (err) {
-      console.error('[PenaltySystem] DB Update Error:', err);
-      // Fallback manual update
-      try {
-        const { data: attempt } = await supabase.from('attempts').select('penalty_count, penalty_seconds').eq('id', attemptId).single();
+      
+      // If RPC v2 fails (maybe doesn't exist yet), fallback to manual update
+      if (rpcError) {
+        console.warn('[PenaltySystem] increment_penalty_v2 failed, falling back to manual update:', rpcError);
+        const { data: attempt } = await supabase.from('attempts').select('penalty_count, penalty_seconds, is_dnf').eq('id', attemptId).single();
         if (attempt) {
           await supabase.from('attempts').update({
             penalty_count: (attempt.penalty_count || 0) + 1,
-            penalty_seconds: (attempt.penalty_seconds || 0) + PENALTY_SECONDS,
+            penalty_seconds: (attempt.penalty_seconds || 0) + (isDnf ? 0 : penaltySeconds),
+            is_dnf: isDnf || attempt.is_dnf,
           }).eq('id', attemptId);
         }
-      } catch (f) {
-        console.error('[PenaltySystem] Manual fallback also failed:', f);
       }
+    } catch (err) {
+      console.error('[PenaltySystem] DB Update Error:', err);
     }
-  }, [attemptId, isActive, onPenalty, onNotification, playFallbackBeep]);
+  }, [attemptId, isActive, currentPenaltyCount, onPenalty, onNotification, playFallbackBeep]);
 
   useEffect(() => {
     if (!isActive) {

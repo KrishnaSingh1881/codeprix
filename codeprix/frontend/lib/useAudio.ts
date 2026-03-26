@@ -10,7 +10,8 @@ export type SoundName =
   | 'sector_complete' // Short radio crackle / sector bell
   | 'penalty'         // F1 radio static burst + penalty tone
   | 'leaderboard_open'// Radio crackle on leaderboard open
-  | 'race_complete';  // Chequered flag / finish fanfare
+  | 'race_complete'   // Chequered flag / finish fanfare
+  | 'dnf';            // Did Not Finish - Critical disqualification sound
 
 const SOUND_SRCS: Record<SoundName, string> = {
   countdown:        '/assets/audio/f1-start-light.mp3', // reuse existing asset
@@ -19,6 +20,7 @@ const SOUND_SRCS: Record<SoundName, string> = {
   penalty:          '/sounds/penalty.mp3',
   leaderboard_open: '/sounds/Leaderboard.mp3',
   race_complete:    '/sounds/race_complete.mp3',
+  dnf:              '/sounds/dnf.mp3',
 };
 
 const SOUND_VOLUMES: Record<SoundName, number> = {
@@ -28,6 +30,7 @@ const SOUND_VOLUMES: Record<SoundName, number> = {
   penalty:          0.8,
   leaderboard_open: 0.6,
   race_complete:    0.9,
+  dnf:              1.0,
 };
 
 // ─── Web Audio fallback beeps ─────────────────────────────────────────────────
@@ -40,6 +43,7 @@ const FALLBACK_BEEPS: Record<SoundName, BeepConfig> = {
   penalty:          { frequency: 220,  duration: 0.35, gain: 0.15,  type: 'sawtooth'},
   leaderboard_open: { frequency: 600,  duration: 0.12, gain: 0.015, type: 'sine'   },
   race_complete:    { frequency: 1320, duration: 0.4,  gain: 0.03,  type: 'sine'   },
+  dnf:              { frequency: 110,  duration: 0.8,  gain: 0.2,   type: 'sawtooth'},
 };
 
 // ─── Mute preference persisted to localStorage ────────────────────────────────
@@ -114,6 +118,16 @@ export function useAudio() {
   const play = useCallback((name: SoundName) => {
     if (muted || !interactedRef.current) return;
 
+    // Special behavior for DNF: Stop all other sounds immediately
+    if (name === 'dnf') {
+      audioMap.current.forEach((a, n) => {
+        if (n !== 'dnf') {
+          a.pause();
+          a.currentTime = 0;
+        }
+      });
+    }
+
     const audio = audioMap.current.get(name);
     if (audio) {
       audio.currentTime = 0;
@@ -122,6 +136,7 @@ export function useAudio() {
       playFallback(name);
     }
   }, [muted, playFallback]);
+
 
   // ── Mute toggle ───────────────────────────────────────────────────────────
   const toggleMute = useCallback(() => {

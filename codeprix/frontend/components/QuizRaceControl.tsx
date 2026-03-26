@@ -33,6 +33,7 @@ type QuizRaceControlProps = {
   onFinishRace: () => void;
   onOpenLeaderboard: () => void;
   penaltyShaking?: boolean;
+  isDnf?: boolean;
 };
 
 type DashboardProps = {
@@ -68,6 +69,7 @@ type FinishedPanelProps = {
   rankedQuestionTimeMs: number;
   onFinishRace: () => void;
   onOpenLeaderboard: () => void;
+  isDnf?: boolean;
 };
 
 const optionLetters = ['A', 'B', 'C', 'D'];
@@ -279,7 +281,7 @@ const LaunchPad = memo(function LaunchPad({ team, sequenceStep, sequenceRunning,
   );
 });
 
-const FinishedPanel = memo(function FinishedPanel({ team, total, rankedQuestionTimeMs, onFinishRace, onOpenLeaderboard }: FinishedPanelProps) {
+const FinishedPanel = memo(function FinishedPanel({ team, total, rankedQuestionTimeMs, onFinishRace, onOpenLeaderboard, isDnf }: FinishedPanelProps) {
   // L key shortcut
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -291,13 +293,13 @@ const FinishedPanel = memo(function FinishedPanel({ team, total, rankedQuestionT
 
   return (
     <div className="w-full rounded-[26px] border border-white/12 bg-black/75 px-6 py-9 text-center shadow-[0_28px_70px_rgba(0,0,0,0.5)] sm:px-12 sm:py-12">
-      <p className="font-racing text-xs uppercase tracking-[0.4em] text-[#E10600]">SESSION COMPLETE</p>
-      <h2 className="mt-6 font-racing text-4xl sm:text-6xl tracking-[0.06em] text-white uppercase">RACE FINISHED</h2>
+      <p className="font-racing text-xs uppercase tracking-[0.4em] text-[#E10600]">{isDnf ? 'DISQUALIFIED' : 'SESSION COMPLETE'}</p>
+      <h2 className="mt-6 font-racing text-4xl sm:text-6xl tracking-[0.06em] text-white uppercase">{isDnf ? 'DNF - DID NOT FINISH' : 'RACE FINISHED'}</h2>
       <p className="mt-6 text-xl text-white/70">
-        Team <span className="text-white font-bold">{team}</span> completed {total} laps.
+        Team <span className="text-white font-bold">{team}</span> {isDnf ? 'has been disqualified due to multiple track deviations.' : `completed ${total} laps.`}
       </p>
       <div className="mt-4 font-racing text-3xl text-[#E10600] mb-10">
-        FINAL TIME: {formatDuration(rankedQuestionTimeMs)}
+        {isDnf ? 'POSITION: LAST' : `FINAL TIME: ${formatDuration(rankedQuestionTimeMs)}`}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -325,7 +327,7 @@ const FinishedPanel = memo(function FinishedPanel({ team, total, rankedQuestionT
 export default function QuizRaceControl({
   team, current, total, selected, finished, raceArmed, question,
   questionTimeMs, overallTimeMs, rankedQuestionTimeMs, penaltyMs, 
-  onAnswer, onStartRace, onQuitRace, onFinishRace, onOpenLeaderboard, penaltyShaking
+  onAnswer, onStartRace, onQuitRace, onFinishRace, onOpenLeaderboard, penaltyShaking, isDnf
 }: QuizRaceControlProps) {
   const [sequenceStep, setSequenceStep] = useState(-1);
   const [sequenceRunning, setSequenceRunning] = useState(false);
@@ -379,6 +381,7 @@ export default function QuizRaceControl({
               rankedQuestionTimeMs={rankedQuestionTimeMs}
               onFinishRace={onFinishRace}
               onOpenLeaderboard={onOpenLeaderboard}
+              isDnf={isDnf}
             />
           ) : (
             <QuestionPanel

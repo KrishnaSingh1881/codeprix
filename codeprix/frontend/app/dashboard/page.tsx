@@ -17,6 +17,7 @@ interface Attempt {
   status: 'pending' | 'in_progress' | 'completed';
   started_at: string | null;
   completed_at: string | null;
+  is_dnf?: boolean;
 }
 
 interface EventConfig {
@@ -296,7 +297,7 @@ export default function DashboardPage() {
                 ) : attempt?.status === 'completed' ? (
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-full rounded-[22px] border border-[#E10600]/45 bg-[#E10600]/10 px-8 py-4 font-racing text-sm sm:text-base uppercase tracking-[0.18em] text-[#E10600] text-center">
-                      🏁 Race Complete
+                      {attempt.is_dnf ? '🏁 DNF - Disqualified' : '🏁 Race Complete'}
                     </div>
                     {activeRace?.results_released ? (
                       <button

@@ -41,18 +41,21 @@ export interface LeaderboardEntry {
   score: number;
   totalTime: number; // seconds
   penaltyCount: number;
+  isDnf?: boolean;
 }
 
 export interface LeaderboardPublicEntry {
   rank: number;
   teamName: string;
   totalTime: number; // seconds
+  isDnf?: boolean;
 }
 
 export interface LeaderboardAdminEntry extends LeaderboardEntry {
   participantId: string;
   completedAt: string | null;
   penaltySeconds: number;
+  isDnf: boolean;
 }
 
 // ─── Shared fetch + sort ──────────────────────────────────────────────────────
@@ -86,6 +89,7 @@ async function fetchRawAttempts(eventId?: number) {
       penalty_count,
       completed_at,
       participant_id,
+      is_dnf,
       participants ( team_name )
     `)
     .eq('event_id', targetEventId)
@@ -105,8 +109,13 @@ async function fetchRawAttempts(eventId?: number) {
       penaltyCount: (row.penalty_count ?? 0) as number,
       penaltySeconds: (row.penalty_seconds ?? 0) as number,
       completedAt: row.completed_at as string | null,
+      isDnf: (row.is_dnf || row.penalty_count >= 3) as boolean,
     }))
     .sort((a, b) => {
+      // 0. DNF Check (DNF always at bottom)
+      if (a.isDnf && !b.isDnf) return 1;
+      if (!a.isDnf && b.isDnf) return -1;
+
       // Primary: Score
       if (b.score !== a.score) return b.score - a.score;
       // Secondary: Time (Total + Penalty)
@@ -120,14 +129,14 @@ async function fetchRawAttempts(eventId?: number) {
 /** Score hidden — used during active event */
 export async function getLeaderboardPublic(eventId?: number): Promise<LeaderboardPublicEntry[]> {
   const raw = await fetchRawAttempts(eventId);
-  return raw.map(({ rank, teamName, totalTime }) => ({ rank, teamName, totalTime }));
+  return raw.map(({ rank, teamName, totalTime, isDnf }) => ({ rank, teamName, totalTime, isDnf }));
 }
 
 /** Score visible — used after results_released = true */
 export async function getLeaderboard(eventId?: number): Promise<LeaderboardEntry[]> {
   const raw = await fetchRawAttempts(eventId);
   return raw.map(({ rank, teamName, score, totalTime, penaltyCount }) => ({
-    rank, teamName, score, totalTime, penaltyCount,
+    rank, teamName, score, totalTime, penaltyCount, isDnf: raw.find(r => r.rank === rank)?.isDnf
   }));
 }
 

@@ -263,7 +263,9 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                             {penaltyCount > 0 ? `+${penaltyCount}` : '0'}
                           </span>
                           <span className="text-right font-racing text-[10px] tracking-wide text-white/50">
-                            {formatTime(e.totalTime)}
+                            { (e as any).isDnf ? (
+                              <span className="text-red-500 font-bold">DNF</span>
+                            ) : formatTime(e.totalTime)}
                           </span>
                         </motion.div>
                       );
