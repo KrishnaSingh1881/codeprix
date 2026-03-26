@@ -49,6 +49,8 @@ export default function IntroMusic() {
       }
     };
 
+    const fadeIntervalRef = { current: null as any };
+
     if (isHome) {
       if (!interacted) {
         window.addEventListener('pointerdown', handleInteraction, { once: true });
@@ -58,17 +60,25 @@ export default function IntroMusic() {
         if (audio.paused) audio.play().catch(() => {});
       }
     } else if (isLogin) {
-      // 8-second slow fade out (0.5 to 0 in 80 steps of 100ms)
-      const fadeInterval = setInterval(() => {
-        if (audio.volume > 0.01) {
-          audio.volume = Math.max(0, audio.volume - 0.00625);
-        } else {
-          audio.volume = 0;
-          audio.pause();
-          clearInterval(fadeInterval);
-        }
-      }, 100);
-      return () => clearInterval(fadeInterval);
+      // 8-second slow fade out, but ONLY after user starts typing
+      const startFade = () => {
+        fadeIntervalRef.current = setInterval(() => {
+          if (audio.volume > 0.01) {
+            audio.volume = Math.max(0, audio.volume - 0.00625);
+          } else {
+            audio.volume = 0;
+            audio.pause();
+            if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+          }
+        }, 100);
+        window.removeEventListener('keydown', startFade);
+      };
+
+      window.addEventListener('keydown', startFade);
+      return () => {
+        window.removeEventListener('keydown', startFade);
+        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+      };
     } else {
       // For other pages, we'll keep it playing if it was already playing,
       // unless the user specified otherwise. But many "intro" musics stop
