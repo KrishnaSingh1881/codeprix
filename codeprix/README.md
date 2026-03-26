@@ -9,7 +9,7 @@
 **CodePrix** is a serverless application built on **Next.js 14** and **Supabase**. It leverages real-time database listeners and scaled telemetry timers to ensure a millisecond-accurate racing experience. The frontend uses **Framer Motion** for sleek, glassmorphism-based animations that mirror high-end F1 race control HUDs.
 
 ### 🏎️ **For Participants**
-*   **Monza Circuit HUD**: A high-fidelity, real-time SVG trace of the *Autodromo Nazionale Monza*. Your progress is mapped exactly to the circuit path, providing an immersive visual track of your race position.
+*   **Circuit HUD**: A high-fidelity, real-time SVG trace of the Track. Your progress is mapped exactly to the circuit path, providing an immersive visual track of your race position.
 *   **Mission Control Interface**: A glass-frosted dashboard featuring focused question cards and a 2x2 responsive answer grid for high-speed decision making.
 *   **Strategic Secrecy**: Feedback (Correct/Incorrect) is disabled during the live race, maintaining intense pressure and suspense until the final Results Release.
 *   **Live Teleboard Standing**: Every 5 seconds, participant telemetry (Name, Time, Penalties) is synchronized across all users, allowing you to see your rivals' positions shift in real-time.

@@ -16,9 +16,9 @@ interface UsePenaltyOptions {
 export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: UsePenaltyOptions) {
   const lastPenaltyAt = useRef<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fallbackCtxRef = useRef<AudioContext | null>(null);
 
   // Preload penalty audio
-  // Replace with actual F1 radio sound clip at public/sounds/penalty.mp3
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -35,9 +35,16 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
 
   const playFallbackBeep = useCallback(() => {
     try {
+      if (typeof window === 'undefined') return;
       const AudioCtor = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioCtor) return;
-      const ctx = new AudioCtor();
+      
+      if (!fallbackCtxRef.current) {
+        fallbackCtxRef.current = new AudioCtor();
+      }
+      const ctx = fallbackCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
@@ -49,81 +56,93 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.4);
-    } catch {
-      // Audio not available
+    } catch (e) {
+      console.warn('Penalty fallback audio failed:', e);
     }
   }, []);
 
   const triggerPenalty = useCallback(async (triggerType: 'tab_switch' | 'window_blur') => {
+    console.log(`[PenaltySystem] Trigger attempt: ${triggerType} | active=${isActive} | attemptId=${attemptId}`);
+    
     if (!isActive || !attemptId) return;
 
-    // Debounce — ignore if a penalty fired within the last 3 seconds
     const now = Date.now();
-    if (now - lastPenaltyAt.current < DEBOUNCE_MS) return;
+    const timeSinceLast = now - lastPenaltyAt.current;
+    
+    if (timeSinceLast < DEBOUNCE_MS) {
+      console.log(`[PenaltySystem] Debounced: ${timeSinceLast}ms < ${DEBOUNCE_MS}ms`);
+      return;
+    }
+    
     lastPenaltyAt.current = now;
+    console.log(`[PenaltySystem] APPLYING PENALTY: ${triggerType}`);
 
-    // 1. Notify parent to add time to the running timer
+    // 1. Notify parent to add time
     onPenalty(PENALTY_SECONDS);
 
-    // 2. Play penalty audio
+    // 2. Play audio
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => playFallbackBeep());
+      audioRef.current.play().catch((err) => {
+        console.warn('Penalty audio play failed:', err);
+        playFallbackBeep();
+      });
     } else {
       playFallbackBeep();
     }
 
-    // 3. Show notification
+    // 3. Notification
     onNotification(`+${PENALTY_SECONDS}s PENALTY — ${triggerType === 'tab_switch' ? 'Tab switch detected' : 'Window focus lost'}`);
 
-    // 4. Insert penalty row into Supabase
-    const { error: penaltyError } = await supabase.from('penalties').insert({
-      attempt_id: attemptId,
-      trigger_type: triggerType,
-      penalty_seconds: PENALTY_SECONDS,
-      triggered_at: new Date().toISOString(),
-    });
+    // 4. Update DB (async, non-blocking for UI)
+    try {
+      const { error: pError } = await supabase.from('penalties').insert({
+        attempt_id: attemptId,
+        trigger_type: triggerType,
+        penalty_seconds: PENALTY_SECONDS,
+        triggered_at: new Date().toISOString(),
+      });
+      if (pError) throw pError;
 
-    if (penaltyError) {
-      console.error('Error inserting penalty:', penaltyError);
-    }
-
-    // 5. Increment penalty_count and penalty_seconds on the attempt row
-    const { error: attemptError } = await supabase.rpc('increment_penalty', {
-      p_attempt_id: attemptId,
-      p_penalty_seconds: PENALTY_SECONDS,
-    });
-
-    if (attemptError) {
-      // Fallback: manual update if RPC not available
-      const { data: attempt } = await supabase
-        .from('attempts')
-        .select('penalty_count, penalty_seconds')
-        .eq('id', attemptId)
-        .single();
-
-      if (attempt) {
-        await supabase
-          .from('attempts')
-          .update({
+      const { error: rpcError } = await supabase.rpc('increment_penalty', {
+        p_attempt_id: attemptId,
+        p_penalty_seconds: PENALTY_SECONDS,
+      });
+      if (rpcError) throw rpcError;
+    } catch (err) {
+      console.error('[PenaltySystem] DB Update Error:', err);
+      // Fallback manual update
+      try {
+        const { data: attempt } = await supabase.from('attempts').select('penalty_count, penalty_seconds').eq('id', attemptId).single();
+        if (attempt) {
+          await supabase.from('attempts').update({
             penalty_count: (attempt.penalty_count || 0) + 1,
             penalty_seconds: (attempt.penalty_seconds || 0) + PENALTY_SECONDS,
-          })
-          .eq('id', attemptId);
+          }).eq('id', attemptId);
+        }
+      } catch (f) {
+        console.error('[PenaltySystem] Manual fallback also failed:', f);
       }
     }
   }, [attemptId, isActive, onPenalty, onNotification, playFallbackBeep]);
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      console.log('[PenaltySystem] Not active, omitting listeners');
+      return;
+    }
+
+    console.log('[PenaltySystem] Activating listeners');
 
     const handleVisibilityChange = () => {
+      console.log(`[PenaltySystem] visibilitychange: ${document.visibilityState}`);
       if (document.visibilityState === 'hidden') {
         triggerPenalty('tab_switch');
       }
     };
 
     const handleWindowBlur = () => {
+      console.log('[PenaltySystem] window blur');
       triggerPenalty('window_blur');
     };
 
@@ -131,6 +150,7 @@ export function usePenalty({ attemptId, onPenalty, onNotification, isActive }: U
     window.addEventListener('blur', handleWindowBlur);
 
     return () => {
+      console.log('[PenaltySystem] Deactivating listeners');
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleWindowBlur);
     };
