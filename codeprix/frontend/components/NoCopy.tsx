@@ -1,19 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function NoCopy() {
+  const pathname = usePathname();
+  const isAdminPage = pathname?.startsWith('/admin');
+
   useEffect(() => {
-    const handleCopy = (e: ClipboardEvent) => {
-      e.preventDefault();
-    };
+    if (isAdminPage) {
+      document.body.classList.remove('no-select');
+      return;
+    }
 
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-    };
+    document.body.classList.add('no-select');
 
+    const handleCopy = (e: ClipboardEvent) => e.preventDefault();
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Prevent Ctrl+C, Ctrl+U, Ctrl+S, Ctrl+Shift+I, F12
       if (
         (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's')) ||
         (e.ctrlKey && e.shiftKey && e.key === 'I') ||
@@ -32,7 +36,7 @@ export default function NoCopy() {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isAdminPage]);
 
   return null;
 }

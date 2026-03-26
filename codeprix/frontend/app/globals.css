@@ -39,6 +39,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+body.no-select {
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
