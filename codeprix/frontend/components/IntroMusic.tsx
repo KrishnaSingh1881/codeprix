@@ -58,16 +58,16 @@ export default function IntroMusic() {
         if (audio.paused) audio.play().catch(() => {});
       }
     } else if (isLogin) {
-      // Slow fade out
+      // 8-second slow fade out (0.5 to 0 in 80 steps of 100ms)
       const fadeInterval = setInterval(() => {
-        if (audio.volume > 0.05) {
-          audio.volume = Math.max(0, audio.volume - 0.05);
+        if (audio.volume > 0.01) {
+          audio.volume = Math.max(0, audio.volume - 0.00625);
         } else {
           audio.volume = 0;
           audio.pause();
           clearInterval(fadeInterval);
         }
-      }, 150);
+      }, 100);
       return () => clearInterval(fadeInterval);
     } else {
       // For other pages, we'll keep it playing if it was already playing,
