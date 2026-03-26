@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 import IntroMusic from '@/components/IntroMusic';
+import NoCopy from '@/components/NoCopy';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <RealtimeWatcher />
+        <NoCopy />
         <Navbar />
         <IntroMusic />
         <ConditionalMain>{children}</ConditionalMain>
