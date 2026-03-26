@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { getParticipant, isAdmin, logoutParticipant, logoutAdmin } from '@/lib/auth';
+import { useAudio } from '@/lib/useAudio';
+import MuteButton from '@/components/MuteButton';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -12,6 +14,7 @@ export default function Navbar() {
   const [participant, setParticipant] = useState<{ id: string; team_name: string } | null>(null);
   const [admin, setAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { muted, toggleMute } = useAudio();
 
   const checkAuth = () => {
     const storedParticipant = getParticipant();
@@ -54,6 +57,7 @@ export default function Navbar() {
         <Link href="/" className="font-racing text-base sm:text-lg font-extrabold tracking-[0.18em] uppercase text-white no-underline">
           <span className="text-[#E10600]">Code</span>Prix
         </Link>
+        <MuteButton muted={muted} onToggle={toggleMute} />
 
         {/* Desktop nav */}
         <ul className="hidden md:flex gap-6 lg:gap-8 list-none m-0 p-0 items-center">

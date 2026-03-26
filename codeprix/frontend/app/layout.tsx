@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'The ultimate F1-inspired competitive coding event.',
 };
 
+import IntroMusic from '@/components/IntroMusic';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -21,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <RealtimeWatcher />
         <Navbar />
+        <IntroMusic />
         <ConditionalMain>{children}</ConditionalMain>
         <Footer />
       </body>
