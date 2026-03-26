@@ -16,6 +16,8 @@ export default function IntroMusic() {
       const audio = new Audio('/sounds/intro.mp3');
       audio.loop = true;
       audio.volume = 0.5;
+      audio.preload = 'auto';
+      audio.load();
       audioRef.current = audio;
     }
     return () => {
@@ -54,6 +56,8 @@ export default function IntroMusic() {
     if (isHome) {
       if (!interacted) {
         window.addEventListener('pointerdown', handleInteraction, { once: true });
+        window.addEventListener('touchstart', handleInteraction, { once: true });
+        window.addEventListener('touchend', handleInteraction, { once: true });
         window.addEventListener('keydown', handleInteraction, { once: true });
       } else if (!muted) {
         audio.volume = 0.5;
@@ -88,6 +92,8 @@ export default function IntroMusic() {
 
     return () => {
       window.removeEventListener('pointerdown', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('touchend', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };
   }, [pathname, interacted, muted]);
