@@ -1,0 +1,137 @@
+[
+  {
+    "body": "What will be the output of console.log(typeof NaN)?",
+    "option_a": "number",
+    "option_b": "string",
+    "option_c": "undefined",
+    "option_d": "object",
+    "correct_option": "A",
+    "sector": 1
+  },
+  {
+    "body": "Which method adds an element to the end of an array in JavaScript?",
+    "option_a": "shift()",
+    "option_b": "pop()",
+    "option_c": "push()",
+    "option_d": "unshift()",
+    "correct_option": "C",
+    "sector": 1
+  },
+  {
+    "body": "In F1, what does DRS stand for?",
+    "option_a": "Direct Race System",
+    "option_b": "Drag Reduction System",
+    "option_c": "Downforce Relay Speed",
+    "option_d": "Dynamic Race Stability",
+    "correct_option": "B",
+    "sector": 1
+  },
+  {
+    "body": "What is the time complexity of binary search?",
+    "option_a": "O(n)",
+    "option_b": "O(n²)",
+    "option_c": "O(log n)",
+    "option_d": "O(1)",
+    "correct_option": "C",
+    "sector": 1
+  },
+  {
+    "body": "Which keyword is used to declare a constant in JavaScript?",
+    "option_a": "var",
+    "option_b": "let",
+    "option_c": "static",
+    "option_d": "const",
+    "correct_option": "D",
+    "sector": 1
+  },
+  {
+    "body": "If Max is faster than Lewis, and Lewis is faster than Charles, who is the slowest?",
+    "option_a": "Max",
+    "option_b": "Lewis",
+    "option_c": "Charles",
+    "option_d": "Lando",
+    "correct_option": "C",
+    "sector": 2
+  },
+  {
+    "body": "A race is 50 laps. If a driver completes 25 laps, what percentage is done?",
+    "option_a": "25%",
+    "option_b": "50%",
+    "option_c": "75%",
+    "option_d": "100%",
+    "correct_option": "B",
+    "sector": 2
+  },
+  {
+    "body": "Which tire compound is fastest but wears the quickest in F1?",
+    "option_a": "Hard",
+    "option_b": "Medium",
+    "option_c": "Soft",
+    "option_d": "Inter",
+    "correct_option": "C",
+    "sector": 2
+  },
+  {
+    "body": "A function calls itself. What is this concept called?",
+    "option_a": "Iteration",
+    "option_b": "Recursion",
+    "option_c": "Abstraction",
+    "option_d": "Polymorphism",
+    "correct_option": "B",
+    "sector": 2
+  },
+  {
+    "body": "In a sorted array [1,3,5,7,9], how many comparisons does binary search need to find 7?",
+    "option_a": "1",
+    "option_b": "2",
+    "option_c": "3",
+    "option_d": "4",
+    "correct_option": "C",
+    "sector": 2
+  },
+  {
+    "body": "A pit stop takes 2.5 seconds. How many stops fit in 10 seconds?",
+    "option_a": "2",
+    "option_b": "3",
+    "option_c": "4",
+    "option_d": "5",
+    "correct_option": "C",
+    "sector": 3
+  },
+  {
+    "body": "Which F1 track is known as the 'Temple of Speed'?",
+    "option_a": "Monaco",
+    "option_b": "Silverstone",
+    "option_c": "Spa",
+    "option_d": "Monza",
+    "correct_option": "D",
+    "sector": 3
+  },
+  {
+    "body": "What is the maximum number of cars allowed on an F1 grid?",
+    "option_a": "18",
+    "option_b": "20",
+    "option_c": "22",
+    "option_d": "24",
+    "correct_option": "B",
+    "sector": 3
+  },
+  {
+    "body": "Which data structure uses LIFO (Last In First Out)?",
+    "option_a": "Queue",
+    "option_b": "Linked List",
+    "option_c": "Stack",
+    "option_d": "Tree",
+    "correct_option": "C",
+    "sector": 3
+  },
+  {
+    "body": "What does CSS stand for?",
+    "option_a": "Computer Style Sheets",
+    "option_b": "Cascading Style Sheets",
+    "option_c": "Creative Style System",
+    "option_d": "Colorful Style Syntax",
+    "correct_option": "B",
+    "sector": 3
+  }
+]

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ConditionalMain from '@/components/ConditionalMain';
 
 export const metadata: Metadata = {
   title: 'CodePrix — Where Code Meets Speed',
@@ -13,11 +15,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
         <Navbar />
-        <main>{children}</main>
+        <ConditionalMain>{children}</ConditionalMain>
+        <Footer />
       </body>
     </html>
   );

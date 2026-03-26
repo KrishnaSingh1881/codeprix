@@ -1,4 +1,19 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+
 export default function Footer() {
+  const pathname = usePathname();
+  // Hide footer on focused action pages that have their own full-screen layouts
+  const isActionPage =
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/race') ||
+    pathname?.startsWith('/results') ||
+    pathname?.startsWith('/login');
+
+  if (isActionPage) return null;
+
   return (
     <footer className="footer">
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>

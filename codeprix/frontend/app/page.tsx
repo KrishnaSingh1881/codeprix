@@ -17,9 +17,14 @@ export default function HomePage() {
           Teams race through multiple rounds of challenges — from speed coding to brain-twisting puzzles —
           battling for the top spot on the leaderboard. Only the fastest and smartest survive.
         </p>
-        <Link href="/how-it-works" className="btn-racing">
-          Discover the Format →
-        </Link>
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <Link href="/how-it-works" className="btn-racing">
+            Discover the Format →
+          </Link>
+          <Link href="/login" className="btn-racing" style={{ background: 'transparent', border: '1px solid var(--brand-red)', color: 'var(--brand-red)' }}>
+            Enter Pit Lane (Login)
+          </Link>
+        </div>
       </section>
 
       {/* ── How It Works Overview ── */}

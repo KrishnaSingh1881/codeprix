@@ -70,6 +70,15 @@ export default function HeroAnimation() {
         if (loaded === 1) { resize(); draw(0); }
         if (loaded === TOTAL && loaderRef.current) {
           loaderRef.current.style.opacity = '0';
+          loaderRef.current.style.pointerEvents = 'none';
+          setTimeout(() => { if (loaderRef.current) loaderRef.current.style.display = 'none'; }, 700);
+        }
+      };
+      img.onerror = () => {
+        loaded++; // Count error as loaded to avoid getting stuck
+        if (loaded === TOTAL && loaderRef.current) {
+          loaderRef.current.style.opacity = '0';
+          loaderRef.current.style.pointerEvents = 'none';
           setTimeout(() => { if (loaderRef.current) loaderRef.current.style.display = 'none'; }, 700);
         }
       };
@@ -77,9 +86,21 @@ export default function HeroAnimation() {
       imgs[i] = img;
     }
 
+    // Safety timeout: hide loader after 10s regardless of images
+    const safetyTimeout = setTimeout(() => {
+      if (loaderRef.current && loaderRef.current.style.display !== 'none') {
+        loaderRef.current.style.opacity = '0';
+        loaderRef.current.style.pointerEvents = 'none';
+        setTimeout(() => { if (loaderRef.current) loaderRef.current.style.display = 'none'; }, 700);
+      }
+    }, 10000);
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', () => { resize(); draw(frame); });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(safetyTimeout);
+    };
   }, []);
 
   return (

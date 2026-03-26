@@ -23,7 +23,7 @@ export default function TeamsPage() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/teams`)
       .then((r) => r.json())
       .then((d) => setTeams(d.data || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
