@@ -15,6 +15,13 @@
 *   **Live Teleboard Standing**: Every 5 seconds, participant telemetry (Name, Time, Penalties) is synchronized across all users, allowing you to see your rivals' positions shift in real-time.
 *   **Automatic Sector Pulsing**: The app automatically detects when you cross sector lines (S1, S2, S3), triggering high-impact visual overlays and sound effects.
 
+### ⚖️ **The Escalation Penalty System**
+CodePrix features a high-stakes penalty system inspired by the legends of the grid:
+*   **1st Penalty (+33s)**: A tribute to **Max Verstappen** (#33). A slight deviation, but you're still in the hunt.
+*   **2nd Penalty (+44s)**: A tribute to **Lewis Hamilton** (#44). Pressure is mounting—one more mistake and it's over.
+*   **3rd Penalty (DNF)**: Full disqualification. You are immediately pushed to the **bottom of the grid**. 
+    *   **"No, Michael, No! That was so not right!"**: A custom DNF sound effect silences all other telemetry audio, signaling your retirement from the session.
+
 ### 🛠️ **For Admin (Race Control)**
 *   **Command Dashboard**: The central hub to **Start**, **Reset**, and **Finish** race sessions for all participants simultaneously.
 *   **Global Refresh Pulse**: Integrated Realtime Watchers automatically refresh every participant's browser the moment the admin changes the race state or releases results.
