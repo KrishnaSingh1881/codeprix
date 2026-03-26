@@ -70,6 +70,33 @@ export default function AdminLeaderboardPage() {
                 >
                   Reset Leaderboard
                 </button>
+                <button
+                  onClick={() => {
+                    const headers = ["Rank", "Team Name", "Score", "Total Time (s)", "Penalty Count", "Penalty Seconds", "Submitted At"];
+                    const rows = entries.map(e => [
+                      e.rank,
+                      e.teamName,
+                      e.score,
+                      e.totalTime,
+                      e.penaltyCount,
+                      e.penaltySeconds,
+                      e.completedAt || 'In Progress'
+                    ]);
+                    const csvContent = [headers, ...rows].map(r => r.join(",")).join("\n");
+                    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `codeprix_results_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  disabled={entries.length === 0}
+                  className="rounded-md bg-green-500/10 px-2 py-0.5 font-racing text-[9px] uppercase tracking-widest text-green-500 transition-all hover:bg-green-500 hover:text-white disabled:opacity-0"
+                >
+                  Export CSV
+                </button>
               </div>
             </div>
             <div className="text-right">

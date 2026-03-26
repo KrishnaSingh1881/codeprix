@@ -143,9 +143,9 @@ export default function RacePage() {
           setOverallTimeMs((storedAttempt.total_time_seconds || 0) * 1000);
         }
       } else {
-         // No attempt for active race? Go back to create it.
-         router.push('/dashboard');
-         return;
+        // No attempt for active race? Go back to create it.
+        router.push('/dashboard');
+        return;
       }
 
       // 3. Load questions
@@ -355,18 +355,18 @@ export default function RacePage() {
           <AnimatePresence>
             {penaltyNotification && (
               <motion.div key="penalty" initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -80, opacity: 0 }} className="pointer-events-none fixed top-6 left-1/2 z-50 -translate-x-1/2 w-full max-w-sm px-4">
-                 <div className="relative overflow-hidden rounded-[18px] border border-[#E10600]/70 bg-black/95 px-6 py-4 shadow-[0_0_40px_rgba(225,6,0,0.5)]">
-                    <div className="relative flex items-center gap-3">
-                        <span className="font-racing text-2xl text-[#E10600] animate-pulse">⚠</span>
-                        <div className="flex-1">
-                            <p className="font-racing text-[10px] uppercase tracking-[0.36em] text-[#E10600]/80">Race Control</p>
-                            <div className="flex items-end justify-between text-white font-racing">
-                                <p className="text-sm">TRACK DEVIATION</p>
-                                <span className="text-xl text-[#E10600]">+30s</span>
-                            </div>
-                        </div>
+                <div className="relative overflow-hidden rounded-[18px] border border-[#E10600]/70 bg-black/95 px-6 py-4 shadow-[0_0_40px_rgba(225,6,0,0.5)]">
+                  <div className="relative flex items-center gap-3">
+                    <span className="font-racing text-2xl text-[#E10600] animate-pulse">⚠</span>
+                    <div className="flex-1">
+                      <p className="font-racing text-[10px] uppercase tracking-[0.36em] text-[#E10600]/80">Race Control</p>
+                      <div className="flex items-end justify-between text-white font-racing">
+                        <p className="text-sm">TRACK DEVIATION</p>
+                        <span className="text-xl text-[#E10600]">+30s</span>
+                      </div>
                     </div>
-                 </div>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
