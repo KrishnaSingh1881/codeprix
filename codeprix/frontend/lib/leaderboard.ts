@@ -89,7 +89,7 @@ async function fetchRawAttempts(eventId?: number) {
       participants ( team_name )
     `)
     .eq('event_id', targetEventId)
-    .eq('status', 'completed');
+    .in('status', ['in_progress', 'completed']);
 
   if (error) {
     console.error('Error fetching leaderboard:', error);

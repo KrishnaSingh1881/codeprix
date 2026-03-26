@@ -225,23 +225,19 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                   >
                     <div
                       className="grid border-b border-white/10 px-4 py-3 font-racing text-[9px] uppercase tracking-[0.28em] text-white/30"
-                      style={{ gridTemplateColumns: showScore ? '44px 1fr 60px 60px 80px' : '1fr 100px' }}
+                      style={{ gridTemplateColumns: showScore ? '44px 1fr 60px 60px 80px' : '1fr 60px 100px' }}
                     >
                       {showScore && <span>Pos</span>}
                       <span>Team</span>
-                      {showScore && (
-                        <>
-                          <span className="text-right">Score</span>
-                          <span className="text-right">Pen</span>
-                        </>
-                      )}
+                      {showScore && <span className="text-right">Score</span>}
+                      <span className="text-right">Pen</span>
                       <span className="text-right">Time</span>
                     </div>
 
                     {entries.map((e, i) => {
                       const isTop3 = e.rank <= 3;
                       const color = isTop3 ? podiumColors[e.rank - 1] : 'rgba(255,255,255,0.65)';
-                      const penaltyCount = (e as LeaderboardEntry).penaltyCount ?? 0;
+                      const penaltyCount = (e as any).penaltyCount ?? 0;
 
                       return (
                         <motion.div
@@ -250,7 +246,7 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 + i * 0.04 }}
                           className={`grid items-center border-b border-white/[0.05] px-4 py-3.5 transition-colors hover:bg-white/[0.03] ${isTop3 && showScore ? 'bg-white/[0.02]' : ''}`}
-                          style={{ gridTemplateColumns: showScore ? '44px 1fr 60px 60px 80px' : '1fr 100px' }}
+                          style={{ gridTemplateColumns: showScore ? '44px 1fr 60px 60px 80px' : '1fr 60px 100px' }}
                         >
                           {showScore && (
                             <span className="font-racing text-base" style={{ color }}>
@@ -259,15 +255,13 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                           )}
                           <span className="font-racing text-xs tracking-wide text-white">{e.teamName}</span>
                           {showScore && (
-                            <>
-                              <span className="text-right font-racing text-xs text-white/60">
-                                {(e as LeaderboardEntry).score ?? '—'}
-                              </span>
-                              <span className="text-right font-racing text-xs text-red-500/80">
-                                {penaltyCount > 0 ? `+${penaltyCount}` : '0'}
-                              </span>
-                            </>
+                            <span className="text-right font-racing text-xs text-white/60">
+                              {(e as LeaderboardEntry).score ?? '—'}
+                            </span>
                           )}
+                          <span className="text-right font-racing text-xs text-red-500/80">
+                            {penaltyCount > 0 ? `+${penaltyCount}` : '0'}
+                          </span>
                           <span className="text-right font-racing text-[10px] tracking-wide text-white/50">
                             {formatTime(e.totalTime)}
                           </span>
@@ -275,6 +269,36 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                       );
                     })}
                   </motion.div>
+
+                  {/* Admin CSV Export */}
+                  {isAdmin && entries.length > 0 && (
+                    <div className="pt-4 pb-8">
+                       <button
+                         onClick={() => {
+                           const headers = showScore ? ["Rank", "Team", "Score", "Penalties", "Total Time"] : ["Team", "Penalties", "Total Time"];
+                           const rows = entries.map(e => {
+                             const p = (e as any).penaltyCount ?? 0;
+                             const t = formatTime(e.totalTime);
+                             return showScore 
+                               ? [e.rank, e.teamName, (e as any).score, p, t]
+                               : [e.teamName, p, t];
+                           });
+                           const csvContent = [headers, ...rows].map(r => r.join(",")).join("\n");
+                           const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                           const url = URL.createObjectURL(blob);
+                           const link = document.createElement("a");
+                           link.setAttribute("href", url);
+                           link.setAttribute("download", `codeprix_leaderboard_${new Date().toISOString().split('T')[0]}.csv`);
+                           document.body.appendChild(link);
+                           link.click();
+                           document.body.removeChild(link);
+                         }}
+                         className="w-full rounded-xl border border-[#00c853]/30 bg-[#00c853]/10 py-3 font-racing text-[10px] uppercase tracking-widest text-[#00c853] hover:bg-[#00c853]/20 transition-all"
+                       >
+                         📥 Export Leaderboard to .CSV
+                       </button>
+                    </div>
+                  )}
                 </>
               )}
             </div>
