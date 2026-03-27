@@ -32,22 +32,22 @@ export default function AdminSidebar() {
             key={href}
             href={href}
             onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-[12px] px-3 py-2.5 font-racing text-[11px] uppercase tracking-[0.18em] transition-colors ${
+            className={`flex items-center gap-4 rounded-[16px] px-4 py-3.5 md:py-2.5 font-racing text-[13px] md:text-[11px] uppercase tracking-[0.18em] transition-all ${
               active
-                ? 'bg-[#E10600]/15 text-[#E10600]'
+                ? 'bg-[#E10600]/15 text-[#E10600] border-l-4 border-[#E10600]'
                 : 'text-white/50 hover:bg-white/[0.04] hover:text-white active:bg-white/[0.06]'
             }`}
           >
-            <span className="text-base">{icon}</span>
+            <span className="text-xl md:text-base">{icon}</span>
             {label}
           </Link>
         );
       })}
       <button
         onClick={handleSignOut}
-        className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2.5 font-racing text-[11px] uppercase tracking-[0.18em] text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white"
+        className="flex w-full items-center gap-4 rounded-[16px] px-4 py-3.5 md:py-2.5 font-racing text-[13px] md:text-[11px] uppercase tracking-[0.18em] text-white/40 transition-all hover:bg-white/[0.04] hover:text-white"
       >
-        <span className="text-base">🚪</span>
+        <span className="text-xl md:text-base">🚪</span>
         Sign Out
       </button>
     </>
@@ -68,10 +68,10 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-white/10 bg-[#0a0a0a]/95 px-4 py-3 backdrop-blur-sm">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-[60] flex items-center justify-between border-b border-white/10 bg-[#0a0a0a] px-4 py-3 shadow-lg">
         <div>
-          <p className="font-racing text-[10px] uppercase tracking-[0.3em] text-[#E10600]">CODEPRIX</p>
-          <p className="font-racing text-[9px] uppercase tracking-[0.2em] text-white/30">Admin</p>
+          <p className="font-racing text-[10px] uppercase tracking-[0.36em] text-[#E10600]">CODEPRIX</p>
+          <p className="font-racing text-[9px] uppercase tracking-[0.2em] text-white/30">Admin Panel</p>
         </div>
         <button
           onClick={() => setMobileOpen(v => !v)}
@@ -84,17 +84,20 @@ export default function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile full-screen menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="md:hidden fixed top-[52px] left-0 right-0 z-40 bg-[#0a0a0a]/98 border-b border-white/10 px-3 py-3 flex flex-col gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="md:hidden fixed inset-0 z-[55] bg-[#0a0a0a] pt-20 px-6 flex flex-col gap-2"
           >
-            <NavLinks />
+            <div className="mb-6">
+               <p className="text-[10px] uppercase tracking-[0.4em] text-white/20 mb-4 px-3">Navigation Menu</p>
+               <NavLinks />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

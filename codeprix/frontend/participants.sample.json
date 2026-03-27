@@ -1,7 +1,42 @@
 [
-  { "team_name": "Ferrari", "access_code": "ferrari2024" },
-  { "team_name": "RedBull", "access_code": "redbull2024" },
-  { "team_name": "Mercedes", "access_code": "mercedes2024" },
-  { "team_name": "McLaren", "access_code": "mclaren2024" },
-  { "team_name": "Alpine", "access_code": "alpine2024" }
+  {
+    "team_name": "McLaren",
+    "access_code": "mclaren01"
+  },
+  {
+    "team_name": "Ferrari",
+    "access_code": "ferrari02"
+  },
+  {
+    "team_name": "Red Bull Racing",
+    "access_code": "redbull03"
+  },
+  {
+    "team_name": "Mercedes",
+    "access_code": "mercedes04"
+  },
+  {
+    "team_name": "Aston Martin",
+    "access_code": "astonmartin05"
+  },
+  {
+    "team_name": "Williams",
+    "access_code": "williams06"
+  },
+  {
+    "team_name": "Racing Bulls",
+    "access_code": "racingbulls07"
+  },
+  {
+    "team_name": "Haas",
+    "access_code": "haas08"
+  },
+  {
+    "team_name": "Kick Sauber",
+    "access_code": "kicksauber09"
+  },
+  {
+    "team_name": "Alpine",
+    "access_code": "alpine10"
+  }
 ]
