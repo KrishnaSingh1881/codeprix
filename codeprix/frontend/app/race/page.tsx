@@ -222,6 +222,7 @@ export default function RacePage() {
           .from('attempts')
           .update({
             total_time_seconds: Math.round(totalSessionMs / 1000),
+            score,
             updated_at: new Date().toISOString(),
           })
           .eq('id', attempt.id)
@@ -235,7 +236,7 @@ export default function RacePage() {
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
-  }, [raceArmed, startedAt, attempt, penaltyMs]);
+  }, [raceArmed, startedAt, attempt, penaltyMs, score]);
 
   const startCountdown = useCallback(() => {
     if (sequenceRunning) return;
@@ -331,6 +332,7 @@ export default function RacePage() {
         status: 'completed',
         completed_at: new Date().toISOString(),
         total_time_seconds: totalTime,
+        score,
         is_dnf: finalDnf,
       }).eq('id', attempt.id);
     }
