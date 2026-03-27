@@ -216,7 +216,7 @@ export default function RacePage() {
       setOverallTimeMs(totalSessionMs);
       setRankedQuestionTimeMs(totalSessionMs);
 
-      if (now - lastSaveRef.current >= 7000 && attempt) {
+      if (now - lastSaveRef.current >= 3000 && attempt) {
         lastSaveRef.current = now;
         supabase
           .from('attempts')
