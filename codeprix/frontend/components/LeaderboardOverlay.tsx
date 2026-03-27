@@ -199,7 +199,7 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                   <div className="text-5xl mb-4 opacity-20">🏁</div>
                   <p className="font-racing text-sm uppercase tracking-widest text-white/20">No finishers yet</p>
-                  <p className="font-racing text-[9px] uppercase tracking-widest text-white/10 mt-1">Leaderboard updates every 5s</p>
+                  <p className="font-racing text-[9px] uppercase tracking-widest text-white/10 mt-1">Leaderboard updates every 3s</p>
                 </div>
               ) : (
                 <>

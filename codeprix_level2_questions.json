@@ -1,0 +1,252 @@
+[
+  {
+    "body": "Find the missing number: 3, 9, 27, 81, ?",
+    "option_a": "162",
+    "option_b": "243",
+    "option_c": "324",
+    "option_d": "180",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Which number does not belong? 2, 6, 7, 10, 14",
+    "option_a": "2",
+    "option_b": "6",
+    "option_c": "7",
+    "option_d": "10",
+    "correct_option": "C",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Which data structure is used in BFS traversal?",
+    "option_a": "Stack",
+    "option_b": "Queue",
+    "option_c": "Array",
+    "option_d": "Heap",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Which data structure is used in DFS traversal?",
+    "option_a": "Queue",
+    "option_b": "Stack",
+    "option_c": "Array",
+    "option_d": "Tree",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "What is the worst-case time complexity of Linear Search?",
+    "option_a": "O(log n)",
+    "option_b": "O(n)",
+    "option_c": "O(n²)",
+    "option_d": "O(1)",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Which statement stops loop execution immediately?",
+    "option_a": "skip",
+    "option_b": "break",
+    "option_c": "continue",
+    "option_d": "exit",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "What does Git commit do?",
+    "option_a": "Upload code to GitHub",
+    "option_b": "Save snapshot locally",
+    "option_c": "Delete files",
+    "option_d": "Run program",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Find the next number: 1, 4, 9, 16, 25, ?",
+    "option_a": "30",
+    "option_b": "36",
+    "option_c": "35",
+    "option_d": "49",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nprint(len(\"Debug\"))",
+    "option_a": "4",
+    "option_b": "5",
+    "option_c": "6",
+    "option_d": "7",
+    "correct_option": "B",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nint a = 10;\na += 5;\nSystem.out.println(a);",
+    "option_a": "5",
+    "option_b": "10",
+    "option_c": "15",
+    "option_d": "20",
+    "correct_option": "C",
+    "sector": 1,
+    "pool_size": 0
+  },
+  {
+    "body": "Which sorting algorithm has O(n log n) average time complexity?",
+    "option_a": "Quick Sort",
+    "option_b": "Bubble Sort",
+    "option_c": "Selection Sort",
+    "option_d": "Insertion Sort",
+    "correct_option": "A",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "Which structure represents hierarchical data?",
+    "option_a": "Array",
+    "option_b": "Tree",
+    "option_c": "Stack",
+    "option_d": "Queue",
+    "correct_option": "B",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "Which operator checks both value AND type equality in JavaScript?",
+    "option_a": "=",
+    "option_b": "==",
+    "option_c": "===",
+    "option_d": "!=",
+    "correct_option": "C",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "If A = Z, B = Y, C = X... what does DOG decode to?",
+    "option_a": "WLT",
+    "option_b": "XMU",
+    "option_c": "VKS",
+    "option_d": "YNV",
+    "correct_option": "A",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "Which traversal prints the root node first?",
+    "option_a": "Inorder",
+    "option_b": "Preorder",
+    "option_c": "Postorder",
+    "option_d": "BFS",
+    "correct_option": "B",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "Which data structure is used in undo operations?",
+    "option_a": "Stack",
+    "option_b": "Queue",
+    "option_c": "Heap",
+    "option_d": "Tree",
+    "correct_option": "A",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nprint(bool(0))",
+    "option_a": "True",
+    "option_b": "False",
+    "option_c": "0",
+    "option_d": "None",
+    "correct_option": "B",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nprint(3 * 1 ** 3)",
+    "option_a": "1",
+    "option_b": "3",
+    "option_c": "9",
+    "option_d": "27",
+    "correct_option": "B",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "If 5 machines make 5 items in 5 minutes, how many minutes will 100 machines take to make 100 items?",
+    "option_a": "5",
+    "option_b": "20",
+    "option_c": "100",
+    "option_d": "1",
+    "correct_option": "A",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "If A = 1, B = 2, C = 3... what is the value of CODE?",
+    "option_a": "27",
+    "option_b": "26",
+    "option_c": "30",
+    "option_d": "32",
+    "correct_option": "A",
+    "sector": 3,
+    "pool_size": 0
+  },
+  {
+    "body": "Which complexity grows the fastest as n increases?",
+    "option_a": "O(n)",
+    "option_b": "O(n log n)",
+    "option_c": "O(n²)",
+    "option_d": "O(log n)",
+    "correct_option": "C",
+    "sector": 2,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nSystem.out.println(10 + 20 + \"30\" + 40);",
+    "option_a": "303040",
+    "option_b": "3040",
+    "option_c": "102030",
+    "option_d": "304040",
+    "correct_option": "A",
+    "sector": 2,
+    "pool_size": 0
+  },
+  {
+    "body": "What will be the output?\nint x = 5;\nprintf(\"%d\", x++ + x);",
+    "option_a": "10",
+    "option_b": "11",
+    "option_c": "12",
+    "option_d": "Undefined",
+    "correct_option": "B",
+    "sector": 2,
+    "pool_size": 0
+  },
+  {
+    "body": "Find the next number in the series: 2, 6, 7, 21, 22, 66, ?",
+    "option_a": "67",
+    "option_b": "88",
+    "option_c": "132",
+    "option_d": "70",
+    "correct_option": "A",
+    "sector": 2,
+    "pool_size": 0
+  },
+  {
+    "body": "If a binary tree has height h, what is the maximum number of nodes it can have?",
+    "option_a": "2h",
+    "option_b": "2^h - 1",
+    "option_c": "h²",
+    "option_d": "h",
+    "correct_option": "B",
+    "sector": 2,
+    "pool_size": 0
+  }
+]

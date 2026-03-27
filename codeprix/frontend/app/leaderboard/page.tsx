@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     fetchData();
-    intervalRef.current = window.setInterval(fetchData, 5000);
+    intervalRef.current = window.setInterval(fetchData, 3000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };

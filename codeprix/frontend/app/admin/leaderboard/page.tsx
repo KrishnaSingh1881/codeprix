@@ -37,7 +37,7 @@ export default function AdminLeaderboardPage() {
 
   useEffect(() => {
     fetchData();
-    intervalRef.current = window.setInterval(fetchData, 5000);
+    intervalRef.current = window.setInterval(fetchData, 3000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [fetchData]);
 
@@ -100,7 +100,7 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-racing text-[10px] uppercase tracking-[0.28em] text-white/25">Auto-refresh every 5s</p>
+              <p className="font-racing text-[10px] uppercase tracking-[0.28em] text-white/25">Auto-refresh every 3s</p>
               {lastUpdated && (
                 <p className="mt-0.5 font-racing text-[10px] uppercase tracking-[0.2em] text-white/35">
                   Last: {formatDate(lastUpdated.toISOString())}

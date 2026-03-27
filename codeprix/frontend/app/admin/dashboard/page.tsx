@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
     const id = setInterval(() => {
       if (view === 'race_list') loadRaces();
       if (view === 'race_manager' && selectedRaceId) loadParticipants(selectedRaceId);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, selectedRaceId]);
