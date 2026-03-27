@@ -28,7 +28,7 @@ interface EventConfig {
   results_released: boolean;
 }
 
-const QUESTIONS_PER_SECTOR = 3;
+const QUESTIONS_PER_SECTOR = 10;
 
 export default function DashboardPage() {
   const [participant, setParticipant] = useState<{ id: string; team_name: string } | null>(null);

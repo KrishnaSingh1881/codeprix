@@ -18,7 +18,7 @@ import CountdownOverlay from '@/components/CountdownOverlay';
 import SectorOverlay from '@/components/SectorOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const QUESTIONS_PER_SECTOR = 3;
+const QUESTIONS_PER_SECTOR = 10;
 
 interface Attempt {
   id: string;
