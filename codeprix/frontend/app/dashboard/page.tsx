@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getParticipant } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -147,6 +147,8 @@ export default function DashboardPage() {
     }
   }, [attempt?.status, play]);
 
+  const startingRef = useRef(false);
+
   const handleStartRace = async () => {
     if (!participant || !activeRace || !activeRace.is_open) {
       alert('Race has not started yet');
@@ -163,31 +165,64 @@ export default function DashboardPage() {
       return;
     }
 
-    // Generate questions
-    const sectored = await getQuestionsForAttempt(QUESTIONS_PER_SECTOR);
-    const flat = flattenQuestions(sectored);
-    saveQuestionsToStorage(flat);
+    // Prevent double-click / multi-tab duplicate
+    if (startingRef.current) return;
+    startingRef.current = true;
 
-    // Create new attempt linked to THIS race
-    const { data: newAttempt, error } = await supabase
-      .from('attempts')
-      .insert({
-        participant_id: participant.id,
-        event_id: activeRace.id,
-        status: 'in_progress',
-        started_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    try {
+      // Double-check no existing attempt exists in DB (guards against multi-tab)
+      const { data: existing } = await supabase
+        .from('attempts')
+        .select('id, status')
+        .eq('participant_id', participant.id)
+        .eq('event_id', activeRace.id)
+        .in('status', ['in_progress', 'completed'])
+        .limit(1);
 
-    if (error) {
-      console.error('Error creating attempt:', error);
+      if (existing && existing.length > 0) {
+        setAttempt(existing[0] as any);
+        if (existing[0].status === 'completed') {
+          alert('You have already completed this race.');
+          startingRef.current = false;
+          return;
+        }
+        router.push('/race');
+        startingRef.current = false;
+        return;
+      }
+
+      // Generate questions
+      const sectored = await getQuestionsForAttempt(QUESTIONS_PER_SECTOR);
+      const flat = flattenQuestions(sectored);
+      saveQuestionsToStorage(flat);
+
+      // Create new attempt linked to THIS race
+      const { data: newAttempt, error } = await supabase
+        .from('attempts')
+        .insert({
+          participant_id: participant.id,
+          event_id: activeRace.id,
+          status: 'in_progress',
+          started_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating attempt:', error);
+        alert('Failed to start race. Please try again.');
+        startingRef.current = false;
+        return;
+      }
+
+      setAttempt(newAttempt);
+      router.push('/race');
+    } catch (err) {
+      console.error('Start race error:', err);
       alert('Failed to start race. Please try again.');
-      return;
+    } finally {
+      startingRef.current = false;
     }
-
-    setAttempt(newAttempt);
-    router.push('/race');
   };
 
   const handleResumeRace = () => {

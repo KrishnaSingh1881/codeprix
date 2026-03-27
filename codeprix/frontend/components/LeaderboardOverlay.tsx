@@ -49,8 +49,29 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
     if (!isOpen) return;
     play('leaderboard_open');
     fetchData();
-    intervalRef.current = window.setInterval(fetchData, 5000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+
+    // Realtime: re-fetch when any attempt row changes (INSERT/UPDATE)
+    const channel = supabase
+      .channel('leaderboard_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'attempts' },
+        () => { fetchData(); }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'event_config' },
+        () => { fetchData(); }
+      )
+      .subscribe();
+
+    // Fallback poll every 30s in case a Realtime event is missed
+    intervalRef.current = window.setInterval(fetchData, 30000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [isOpen, fetchData, play]);
 
   const handleClearLeaderboard = async () => {
