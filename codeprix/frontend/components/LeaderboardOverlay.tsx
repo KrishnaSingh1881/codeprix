@@ -65,8 +65,8 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
       )
       .subscribe();
 
-    // Fallback poll every 30s in case a Realtime event is missed
-    intervalRef.current = window.setInterval(fetchData, 30000);
+    // Fallback poll every 3s in case a Realtime event is missed
+    intervalRef.current = window.setInterval(fetchData, 3000);
 
     return () => {
       supabase.removeChannel(channel);

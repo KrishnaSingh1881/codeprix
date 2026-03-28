@@ -59,6 +59,12 @@ export default function RacePage() {
   const sequenceIntervalRef = useRef<number | null>(null);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSaveRef = useRef<number>(0);
+  const syncStateRef = useRef({ score: 0, penaltyMs: 0, penaltyCount: 0, current: 0 });
+
+  // Keep syncStateRef in sync with state for the heartbeat
+  useEffect(() => {
+    syncStateRef.current = { score, penaltyMs, penaltyCount, current };
+  }, [score, penaltyMs, penaltyCount, current]);
 
   const { unlockAudio, playTickSound, playGoSound } = useLaunchAudio();
   const { play, muted, toggleMute } = useAudio();
@@ -204,7 +210,7 @@ export default function RacePage() {
     loadAttemptAndQuestions();
   }, [participant, router]);
 
-  // Timer effect & Heartbeat
+  // Timer effect (UI only)
   useEffect(() => {
     if (!raceArmed || !startedAt) return;
 
@@ -212,39 +218,47 @@ export default function RacePage() {
       const now = Date.now();
       const elapsed = getScaledElapsedMs(startedAt, now);
       setQuestionTimeMs(elapsed);
-      
       const sessionElapsedMs = elapsed + penaltyMs;
       setOverallTimeMs(sessionElapsedMs);
       setRankedQuestionTimeMs(sessionElapsedMs);
-
-      // Heartbeat: update DB every 2s for leaderboard telemetry
-      if (now - lastSaveRef.current >= 2000 && attempt) {
-        lastSaveRef.current = now;
-        const totalTimeS = Math.round(elapsed / 1000);
-        const penaltyS = Math.round(penaltyMs / 1000);
-        
-        supabase
-          .from('attempts')
-          .update({
-            total_time_seconds: totalTimeS,
-            penalty_seconds: penaltyS,
-            penalty_count: penaltyCount,
-            score: score,
-            current_question_index: current,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', attempt.id)
-          .then(({ error }) => {
-            if (error) console.error('Heartbeat sync failed:', error);
-          });
-      }
     }, 100);
 
     timerIntervalRef.current = interval;
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
-  }, [raceArmed, startedAt, attempt, penaltyMs, score, penaltyCount, current]);
+  }, [raceArmed, startedAt, penaltyMs]);
+
+  // Heartbeat effect (Database Sync) - Decoupled from frequent state changes
+  useEffect(() => {
+    if (!raceArmed || !startedAt || !attempt) return;
+
+    const heartbeat = setInterval(() => {
+      const now = Date.now();
+      const elapsed = getScaledElapsedMs(startedAt, now);
+      const { score: s, penaltyMs: pm, penaltyCount: pc, current: c } = syncStateRef.current;
+      
+      const totalTimeS = Math.round(elapsed / 1000);
+      const penaltyS = Math.round(pm / 1000);
+
+      supabase
+        .from('attempts')
+        .update({
+          total_time_seconds: totalTimeS,
+          penalty_seconds: penaltyS,
+          penalty_count: pc,
+          score: s,
+          current_question_index: c,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', attempt.id)
+        .then(({ error }) => {
+          if (error) console.error('[Heartbeat] Sync failed:', error);
+        });
+    }, 1500);
+
+    return () => clearInterval(heartbeat);
+  }, [raceArmed, startedAt, attempt?.id]);
 
   const startCountdown = useCallback(() => {
     if (sequenceRunning) return;
