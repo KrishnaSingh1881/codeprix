@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import AuthGuard from '@/components/AuthGuard';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getLeaderboardAdmin, LeaderboardAdminEntry, resetLeaderboard } from '@/lib/leaderboard';
+import { supabase } from '@/lib/supabase';
 import ConfirmModal from '@/components/ConfirmModal';
 
 function formatTime(seconds: number) {
@@ -26,6 +27,7 @@ export default function AdminLeaderboardPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -37,7 +39,25 @@ export default function AdminLeaderboardPage() {
 
   useEffect(() => {
     fetchData();
-    intervalRef.current = window.setInterval(fetchData, 3000);
+    
+    // Only auto-refresh if a race is currently active to save Supabase queries
+    const checkAndSetInterval = async () => {
+      const { data: activeConfigs } = await supabase
+        .from('event_config')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1);
+        
+      if (activeConfigs && activeConfigs.length > 0) {
+        setIsRefreshing(true);
+        intervalRef.current = window.setInterval(fetchData, 3000);
+      } else {
+        setIsRefreshing(false);
+      }
+    };
+    
+    checkAndSetInterval();
+    
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [fetchData]);
 
@@ -100,7 +120,9 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-racing text-[10px] uppercase tracking-[0.28em] text-white/25">Auto-refresh every 3s</p>
+              <p className="font-racing text-[10px] uppercase tracking-[0.28em] text-white/25">
+                {isRefreshing ? 'Auto-refresh every 3s' : 'Auto-refresh inactive'}
+              </p>
               {lastUpdated && (
                 <p className="mt-0.5 font-racing text-[10px] uppercase tracking-[0.2em] text-white/35">
                   Last: {formatDate(lastUpdated.toISOString())}

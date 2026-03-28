@@ -10,6 +10,7 @@ import {
   LeaderboardPublicEntry,
   LeaderboardEntry,
 } from '@/lib/leaderboard';
+import { supabase } from '@/lib/supabase';
 
 const podiumColors = ['#C0C0C0', '#FFD700', '#CD7F32'];
 const podiumHeights = [140, 180, 110];
@@ -36,7 +37,22 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     fetchData();
-    intervalRef.current = window.setInterval(fetchData, 3000);
+
+    // Only auto-refresh if a race is currently active to save Supabase queries
+    const checkAndSetInterval = async () => {
+      const { data: activeConfigs } = await supabase
+        .from('event_config')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1);
+        
+      if (activeConfigs && activeConfigs.length > 0) {
+        intervalRef.current = window.setInterval(fetchData, 3000);
+      }
+    };
+    
+    checkAndSetInterval();
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };

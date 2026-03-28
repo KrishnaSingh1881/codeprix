@@ -65,21 +65,32 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
       )
       .subscribe();
 
-    // Fallback poll logic
-    intervalRef.current = window.setInterval(async () => {
-      // Re-check race state periodically to decide whether to poll or pause
-      const { data: cfg } = await supabase
-          .from('event_config')
-          .select('is_open, results_released')
-          .eq('is_active', true)
-          .limit(1);
-      
-      const config = cfg?.[0];
-      // Only poll every 3s if the race is OPEN or RESULTS are being released
-      if (config?.is_open || config?.results_released) {
-        fetchData();
+    // Check if there is an active race before setting the fallback poll
+    const checkAndSetInterval = async () => {
+      const { data: activeConfigs } = await supabase
+        .from('event_config')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1);
+        
+      if (activeConfigs && activeConfigs.length > 0) {
+        // Fallback poll logic only if a race is active
+        intervalRef.current = window.setInterval(async () => {
+          const { data: cfg } = await supabase
+              .from('event_config')
+              .select('is_open, results_released')
+              .eq('is_active', true)
+              .limit(1);
+          
+          const config = cfg?.[0];
+          if (config?.is_open || config?.results_released) {
+            fetchData();
+          }
+        }, 3000);
       }
-    }, 3000);
+    };
+    
+    checkAndSetInterval();
 
     return () => {
       supabase.removeChannel(channel);
