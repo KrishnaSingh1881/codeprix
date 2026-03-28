@@ -65,8 +65,21 @@ export default function LeaderboardOverlay({ isOpen, onClose, isAdmin = false }:
       )
       .subscribe();
 
-    // Fallback poll every 3s in case a Realtime event is missed
-    intervalRef.current = window.setInterval(fetchData, 3000);
+    // Fallback poll logic
+    intervalRef.current = window.setInterval(async () => {
+      // Re-check race state periodically to decide whether to poll or pause
+      const { data: cfg } = await supabase
+          .from('event_config')
+          .select('is_open, results_released')
+          .eq('is_active', true)
+          .limit(1);
+      
+      const config = cfg?.[0];
+      // Only poll every 3s if the race is OPEN or RESULTS are being released
+      if (config?.is_open || config?.results_released) {
+        fetchData();
+      }
+    }, 3000);
 
     return () => {
       supabase.removeChannel(channel);

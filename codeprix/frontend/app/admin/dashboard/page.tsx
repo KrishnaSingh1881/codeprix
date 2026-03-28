@@ -123,12 +123,19 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     loadRaces();
     const id = setInterval(() => {
-      if (view === 'race_list') loadRaces();
-      if (view === 'race_manager' && selectedRaceId) loadParticipants(selectedRaceId);
+      // Find the currently selected race object from the list to check its state
+      const currentObj = races.find(r => r.id === selectedRaceId);
+      const isRaceActive = currentObj?.is_open || currentObj?.is_active;
+
+      if (view === 'race_list') {
+        loadRaces();
+      } else if (view === 'race_manager' && selectedRaceId && isRaceActive) {
+        // High-frequency participant polling ONLY if the race is actually open/active
+        loadParticipants(selectedRaceId);
+      }
     }, 3000);
     return () => clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, selectedRaceId]);
+  }, [view, selectedRaceId, races.length]); // Added deps
 
   // ── Race List Actions ────────────────────────────────────────────────────
   const handleCreateRace = async () => {
