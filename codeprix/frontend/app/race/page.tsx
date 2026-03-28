@@ -18,7 +18,7 @@ import CountdownOverlay from '@/components/CountdownOverlay';
 import SectorOverlay from '@/components/SectorOverlay';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const QUESTIONS_PER_SECTOR = 10;
+
 
 interface Attempt {
   id: string;
@@ -178,7 +178,7 @@ export default function RacePage() {
         rawQuestions = storedQuestions as unknown as any[];
       } else {
         if (isStale) clearQuestionsStorage();
-        const sectored = await getQuestionsForAttempt(QUESTIONS_PER_SECTOR);
+        const sectored = await getQuestionsForAttempt(10); // Default to max 10 per sector
         const flat = flattenQuestions(sectored);
         saveQuestionsToStorage(flat);
         rawQuestions = flat as unknown as any[];
@@ -329,12 +329,13 @@ export default function RacePage() {
 
     setTimeout(() => {
       if (current < questions.length - 1) {
-        const questionsPerSector = QUESTIONS_PER_SECTOR;
-        const currentSector = Math.floor(current / questionsPerSector);
-        const nextSector = Math.floor((current + 1) / questionsPerSector);
-        if (nextSector > currentSector) {
+        const currentSector = questions[current].sector;
+        const nextSector = questions[current + 1].sector;
+        
+        if (nextSector !== currentSector) {
           setShowSectorOverlay(true);
-          setCurrentSectorNum(nextSector + 1);
+          const nextSecNum = parseInt(nextSector.toString()) || 1;
+          setCurrentSectorNum(nextSecNum);
           play('sector_complete');
           setTimeout(() => {
             setShowSectorOverlay(false);
