@@ -22,6 +22,9 @@ interface ParticipantRow {
   status: 'not_started' | 'in_progress' | 'completed';
   current_sector: number | null;
   attempt_id: string | null;
+  score: number;
+  total_time_seconds: number;
+  penalty_seconds: number;
 }
 
 interface AnswerDetail {
@@ -88,7 +91,7 @@ export default function AdminDashboardPage() {
     const { data: parts } = await supabase.from('participants').select('id, team_name');
     const { data: attempts } = await supabase
       .from('attempts')
-      .select('id, participant_id, status, current_question_index')
+      .select('id, participant_id, status, current_question_index, score, total_time_seconds, penalty_seconds')
       .eq('event_id', raceId)
       .order('id', { ascending: false });
 
@@ -102,7 +105,16 @@ export default function AdminDashboardPage() {
       const sector = a?.current_question_index != null
         ? Math.floor(a.current_question_index / 3) + 1
         : null;
-      return { id: p.id, team_name: p.team_name, status: a?.status ?? 'not_started', current_sector: sector, attempt_id: a?.id ?? null };
+      return {
+        id: p.id,
+        team_name: p.team_name,
+        status: a?.status ?? 'not_started',
+        current_sector: sector,
+        attempt_id: a?.id ?? null,
+        score: a?.score ?? 0,
+        total_time_seconds: a?.total_time_seconds ?? 0,
+        penalty_seconds: a?.penalty_seconds ?? 0
+      };
     });
     setParticipants(rows);
   };
@@ -417,8 +429,13 @@ export default function AdminDashboardPage() {
               {/* Participant table */}
               <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#080808]">
                 <div className="flex items-center justify-between border-b border-white/10 px-8 py-5">
-                  <div className="grid flex-1 text-[9px] uppercase tracking-[0.3em] text-white/30" style={{ gridTemplateColumns: '1fr 180px 100px' }}>
-                    <span>Competitor</span><span>Status</span><span className="text-right">Sector</span>
+                  <div className="grid flex-1 text-[9px] uppercase tracking-[0.3em] text-white/30" style={{ gridTemplateColumns: '1fr 100px 100px 80px 80px 80px' }}>
+                    <span>Competitor</span>
+                    <span>Status</span>
+                    <span className="text-right">Score</span>
+                    <span className="text-right">Time</span>
+                    <span className="text-right">Penalty</span>
+                    <span className="text-right">Sector</span>
                   </div>
                 </div>
                 <div className="divide-y divide-white/[0.04]">
@@ -429,10 +446,13 @@ export default function AdminDashboardPage() {
                       key={p.id}
                       onClick={() => openDetail(p)}
                       className={`grid items-center px-8 py-5 transition-all ${p.attempt_id ? 'cursor-pointer hover:bg-white/[0.03]' : 'cursor-default opacity-50'}`}
-                      style={{ gridTemplateColumns: '1fr 180px 100px' }}
+                      style={{ gridTemplateColumns: '1fr 100px 100px 80px 80px 80px' }}
                     >
                       <span className="text-sm font-black tracking-tighter uppercase">{p.team_name}</span>
                       <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: statusColor[p.status] }}>{statusLabel[p.status]}</span>
+                      <span className="text-right text-[12px] font-bold text-blue-400">{p.score}</span>
+                      <span className="text-right text-[11px] font-bold text-white/50">{p.total_time_seconds}s</span>
+                      <span className="text-right text-[11px] font-bold text-[#E10600]">+{p.penalty_seconds}s</span>
                       <span className="text-right text-[10px] font-bold text-white/30">{p.current_sector ? `S${p.current_sector}` : '—'}</span>
                     </div>
                   ))}
