@@ -204,7 +204,7 @@ export default function RacePage() {
     loadAttemptAndQuestions();
   }, [participant, router]);
 
-  // Timer effect
+  // Timer effect & Heartbeat
   useEffect(() => {
     if (!raceArmed || !startedAt) return;
 
@@ -212,22 +212,30 @@ export default function RacePage() {
       const now = Date.now();
       const elapsed = getScaledElapsedMs(startedAt, now);
       setQuestionTimeMs(elapsed);
-      const totalSessionMs = elapsed + penaltyMs;
-      setOverallTimeMs(totalSessionMs);
-      setRankedQuestionTimeMs(totalSessionMs);
+      
+      const sessionElapsedMs = elapsed + penaltyMs;
+      setOverallTimeMs(sessionElapsedMs);
+      setRankedQuestionTimeMs(sessionElapsedMs);
 
-      if (now - lastSaveRef.current >= 3000 && attempt) {
+      // Heartbeat: update DB every 2s for leaderboard telemetry
+      if (now - lastSaveRef.current >= 2000 && attempt) {
         lastSaveRef.current = now;
+        const totalTimeS = Math.round(elapsed / 1000);
+        const penaltyS = Math.round(penaltyMs / 1000);
+        
         supabase
           .from('attempts')
           .update({
-            total_time_seconds: Math.round(totalSessionMs / 1000),
-            score,
+            total_time_seconds: totalTimeS,
+            penalty_seconds: penaltyS,
+            penalty_count: penaltyCount,
+            score: score,
+            current_question_index: current,
             updated_at: new Date().toISOString(),
           })
           .eq('id', attempt.id)
           .then(({ error }) => {
-            if (error) console.error('Error saving attempt:', error);
+            if (error) console.error('Heartbeat sync failed:', error);
           });
       }
     }, 100);
@@ -236,7 +244,7 @@ export default function RacePage() {
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
-  }, [raceArmed, startedAt, attempt, penaltyMs, score]);
+  }, [raceArmed, startedAt, attempt, penaltyMs, score, penaltyCount, current]);
 
   const startCountdown = useCallback(() => {
     if (sequenceRunning) return;
@@ -271,7 +279,11 @@ export default function RacePage() {
 
     const currentQuestion = questions[current];
     const isCorrect = idx === (currentQuestion.mappedCorrect ?? currentQuestion.answer);
-    if (isCorrect) setScore((prev) => prev + 10);
+    let newScore = score;
+    if (isCorrect) {
+      newScore += 10;
+      setScore(newScore);
+    }
 
     const elapsed = getScaledElapsedMs(startedAt || 0);
     setRankedQuestionTimeMs(elapsed + penaltyMs);
@@ -287,7 +299,18 @@ export default function RacePage() {
         question_started_at: new Date().toISOString(),
         question_answered_at: new Date().toISOString(),
       };
+      // Primary DB call for the answer
       await supabase.from('answers').insert(answerData);
+
+      // Sync attempt metadata immediately for leaderboard/telemetry
+      const elapsed = getScaledElapsedMs(startedAt || 0);
+      await supabase.from('attempts').update({
+        score: newScore,
+        current_question_index: current + 1,
+        total_time_seconds: Math.round(elapsed / 1000),
+        penalty_seconds: Math.round(penaltyMs / 1000),
+        updated_at: new Date().toISOString(),
+      }).eq('id', attempt.id);
     }
 
     setTimeout(() => {
